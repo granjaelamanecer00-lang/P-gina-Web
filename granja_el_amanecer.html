@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Granja El Amanecer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        farm: {
+                            light: '#fdfbf7',
+                            green: '#2d6a4f',
+                            greenLight: '#40916c',
+                            accent: '#d4a373',
+                            dark: '#1b4332'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        serif: ['Lora', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #fdfbf7; }
+        .product-card:hover { transform: translateY(-5px); }
+        .transition-all { transition: all 0.3s ease; }
+        
+        /* Ocultar scrollbar en el carrito para un diseño más limpio */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Estilos de impresión para la FEL */
+        @media print {
+            body > *:not(#fel-modal):not(#overlay) {
+                display: none !important;
+            }
+            #overlay { background: white !important; }
+            #fel-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                transform: none;
+                width: 100%;
+                box-shadow: none;
+                max-height: none;
+                overflow: visible;
+            }
+            .print-hidden {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased relative">
+
+    <!-- Navbar -->
+    <header class="bg-farm-green text-white sticky top-0 z-40 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2 text-2xl font-serif font-semibold">
+                <span>🌾</span> Granja El Amanecer
+            </div>
+            <!-- Menú de Navegación -->
+            <nav class="flex gap-6 font-semibold">
+                <button onclick="switchTab('tienda')" class="text-farm-accent transition-colors" id="nav-tienda">Tienda</button>
+                <button onclick="switchTab('nosotros')" class="text-white hover:text-farm-accent transition-colors" id="nav-nosotros">Nosotros</button>
+                <button onclick="switchTab('contacto')" class="text-white hover:text-farm-accent transition-colors" id="nav-contacto">Contacto</button>
+            </nav>
+            <button onclick="toggleCart()" class="relative p-2 hover:bg-farm-greenLight rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span id="cart-badge" class="absolute top-0 right-0 bg-farm-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenedores de Pestañas -->
+    <div id="tienda-section" class="tab-content block">
+        <!-- Hero Section -->
+        <section class="relative bg-farm-greenLight py-20 text-center text-white overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
+            <div class="container mx-auto px-4 relative z-10">
+                <h1 class="text-4xl md:text-5xl font-serif mb-4">Del campo a tu mesa</h1>
+                <p class="text-lg md:text-xl font-light max-w-2xl mx-auto">Disfruta de nuestros productos frescos, 100% naturales y producidos con amor en nuestra granja familiar.</p>
+            </div>
+        </section>
+
+        <!-- Productos Section -->
+        <main class="container mx-auto px-4 py-16">
+            <h2 class="text-3xl font-serif text-center text-farm-dark mb-12">Nuestros Productos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="products-container">
+                <!-- Los productos se inyectan con JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Nosotros Section -->
+    <div id="nosotros-section" class="tab-content hidden container mx-auto px-4 py-16 max-w-4xl">
+        <h2 class="text-4xl font-serif text-center text-farm-dark mb-12">Sobre Nosotros</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center">
+                <div class="text-5xl mb-4">🎯</div>
+                <h3 class="text-2xl font-bold text-farm-green mb-4">Misión</h3>
+                <p class="text-gray-600">Llevar a su mesa productos frescos y naturales de la más alta calidad, directamente desde nuestra granja.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center">
+                <div class="text-5xl mb-4">👁️</div>
+                <h3 class="text-2xl font-bold text-farm-green mb-4">Visión</h3>
+                <p class="text-gray-600">Ser la granja líder a nivel nacional, reconocida por nuestra frescura, sostenibilidad y compromiso con la familia guatemalteca.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center">
+                <div class="text-5xl mb-4">⭐</div>
+                <h3 class="text-2xl font-bold text-farm-green mb-4">Valores</h3>
+                <p class="text-gray-600">Calidad, Frescura, Integridad y Sostenibilidad en cada entrega.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contacto Section -->
+    <div id="contacto-section" class="tab-content hidden container mx-auto px-4 py-16 max-w-2xl text-center">
+        <h2 class="text-4xl font-serif text-farm-dark mb-8">Contáctanos</h2>
+        <p class="text-lg text-gray-600 mb-10">¿Tienes alguna duda, pedido especial para restaurantes o eventos? Escríbenos a nuestros medios oficiales y te atenderemos con el mayor gusto.</p>
+        <div class="flex flex-col justify-center items-center gap-6">
+            
+            <a href="https://wa.me/50240952400" target="_blank" class="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-1 w-full md:w-3/4">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                +502 4095 2400
+            </a>
+            
+            <a href="mailto:granjaelamanecer00@gmail.com" class="flex items-center justify-center gap-3 bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-1 w-full md:w-3/4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                granjaelamanecer00@gmail.com
+            </a>
+            
+            <a href="https://www.instagram.com/granja__amanecer?psln=MTV2ZDB5cWYxN2R6Mg==" target="_blank" class="flex items-center justify-center gap-3 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 hover:opacity-90 text-white px-8 py-4 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-1 w-full md:w-3/4">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.8c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.8c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"/></svg>
+                Instagram
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-farm-dark text-white py-8 text-center mt-12">
+        <p class="font-serif">&copy; 2024 Granja El Amanecer. Todos los derechos reservados.</p>
+        <p class="text-sm text-gray-400 mt-2">Productos locales y sostenibles</p>
+    </footer>
+
+    <!-- Carrito Lateral (Slide-over) -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-6 bg-farm-green text-white flex justify-between items-center">
+            <h2 class="text-2xl font-serif">Tu Carrito</h2>
+            <button onclick="toggleCart()" class="text-white hover:text-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+            <!-- Items del carrito -->
+            <p class="text-gray-500 text-center mt-10">Tu carrito está vacío.</p>
+        </div>
+
+        <div class="p-6 border-t border-gray-200 bg-gray-50">
+            <div class="flex justify-between items-center text-lg font-bold text-farm-dark mb-4">
+                <span>Total:</span>
+                <span id="cart-total">Q0.00</span>
+            </div>
+            <button onclick="openCheckout()" id="checkout-btn" class="w-full bg-farm-accent hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Proceder al Pago
+            </button>
+        </div>
+    </div>
+
+    <!-- Overlay oscuro para modales -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 transition-opacity" onclick="closeAllModals()"></div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-11/12 md:w-96 z-50 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-serif text-farm-dark">Pago Seguro</h3>
+            <button onclick="closeCheckout()" class="text-gray-400 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <form id="payment-form" onsubmit="processPayment(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre en la tarjeta</label>
+                    <input type="text" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-farm-green" placeholder="Juan Pérez">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Número de tarjeta</label>
+                    <input type="text" required pattern="[0-9]{16}" maxlength="16" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-farm-green" placeholder="1234 5678 9101 1121">
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Vencimiento</label>
+                        <input type="text" required pattern="(0[1-9]|1[0-2])\/[0-9]{2}" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-farm-green" placeholder="MM/AA">
+                    </div>
+                    <div class="w-1/2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">CVV</label>
+                        <input type="text" required pattern="[0-9]{3,4}" maxlength="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-farm-green" placeholder="123">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-farm-green hover:bg-farm-dark text-white font-bold py-3 px-4 rounded-lg mt-6 transition-colors shadow-lg">
+                Pagar <span id="checkout-amount-display"></span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-8 w-11/12 md:w-96 z-50 hidden text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+            <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        <h3 class="text-2xl font-serif text-gray-900 mb-2">¡Compra Exitosa!</h3>
+        <p class="text-gray-600 mb-6">Gracias por tu compra. Tus productos frescos están en camino a tu mesa.</p>
+        <button onclick="closeSuccess()" class="w-full bg-farm-green hover:bg-farm-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
+            Volver a la tienda
+        </button>
+    </div>
+
+    <!-- FEL Modal (Factura Electrónica) -->
+    <div id="fel-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl p-6 w-11/12 md:w-[32rem] z-50 hidden max-h-[90vh] overflow-y-auto">
+        <div id="fel-content" class="text-sm text-gray-800 font-mono border border-gray-300 p-6 rounded relative bg-white shadow-inner">
+            <!-- Encabezado de Factura -->
+            <div class="text-center mb-6">
+                <div class="font-bold text-xl mb-1">GRANJA EL AMANECER</div>
+                <div>NIT: 8765432-1</div>
+                <div>Aldea El Fresno, Guatemala</div>
+                <div class="font-bold mt-4 text-base">DOCUMENTO TRIBUTARIO ELECTRÓNICO</div>
+                <div class="font-bold text-base">FACTURA (FEL)</div>
+            </div>
+            
+            <!-- Datos de Autorización Dinámicos -->
+            <div class="mb-4 border-b border-gray-400 border-dashed pb-4" id="fel-meta">
+                <!-- Se inyectan los datos con JS -->
+            </div>
+            
+            <!-- Listado de Items -->
+            <table class="w-full mb-4 text-left">
+                <thead>
+                    <tr class="border-b border-gray-400 border-dashed">
+                        <th class="py-2 w-16">CANT</th>
+                        <th class="py-2">DESCRIPCIÓN</th>
+                        <th class="py-2 text-right">TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody id="fel-items">
+                    <!-- Se inyectan los items con JS -->
+                </tbody>
+            </table>
+            
+            <!-- Totales -->
+            <div class="text-right border-t border-gray-400 border-dashed pt-4 font-bold text-lg" id="fel-total">
+                <!-- Se inyecta el total con JS -->
+            </div>
+            
+            <div class="text-center mt-8 text-xs text-gray-500">
+                "Sujeto a pagos trimestrales ISR"<br>
+                ¡Gracias por su preferencia!
+            </div>
+        </div>
+        
+        <!-- Botones de Acción -->
+        <div class="flex gap-4 mt-6 print-hidden">
+            <button onclick="printFEL()" class="w-1/2 border-2 border-farm-green text-farm-green hover:bg-farm-green hover:text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Imprimir
+            </button>
+            <button onclick="closeFEL()" class="w-1/2 bg-farm-green hover:bg-farm-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Datos de productos
+        const products = [
+            { id: 1, name: 'Leche fresca entera (1L)', price: 15.00, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500&auto=format&fit=crop&q=80', desc: 'Leche de vaca 100% natural, pasteurizada y ordeñada esta misma mañana.' },
+            { id: 2, name: 'Cartón de Huevo', price: 38.00, image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?q=80&w=800&auto=format&fit=crop', desc: 'Huevos frescos de gallinas libres de jaula, alimentadas con granos naturales.' },
+            { id: 3, name: 'Queso fresco artesanal (libra)', price: 25.00, image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=500&auto=format&fit=crop&q=80', desc: 'Queso artesanal suave, perfecto para acompañar tus tortillas y platillos diarios.' }
+        ];
+
+        let cart = [];
+
+        // Inicializar la vista de productos
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            products.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = 'product-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 transition-all flex flex-col';
+                card.innerHTML = `
+                    <div class="h-48 w-full overflow-hidden bg-gray-100">
+                        <img src="${prod.image}" alt="${prod.name}" class="w-full h-full object-cover transition-transform hover:scale-105 duration-500" onerror="this.src='https://placehold.co/500x300/e2e8f0/475569?text=Producto'">
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                        <h3 class="text-xl font-bold text-farm-dark mb-2">${prod.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4 flex-1">${prod.desc}</p>
+                        <div class="flex justify-between items-center mt-auto">
+                            <span class="text-2xl font-bold text-farm-green">Q${prod.price.toFixed(2)}</span>
+                            <button onclick="addToCart(${prod.id})" class="bg-farm-greenLight hover:bg-farm-green text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow">
+                                + Agregar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Lógica del Carrito
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existingItem = cart.find(item => item.id === id);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            updateCartUI();
+            
+            // Pequeña animación visual (abrir el carrito)
+            if(document.getElementById('cart-sidebar').classList.contains('translate-x-full')){
+                toggleCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function updateQuantity(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    removeFromCart(id);
+                } else {
+                    updateCartUI();
+                }
+            }
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotalElement = document.getElementById('cart-total');
+            const cartBadge = document.getElementById('cart-badge');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            
+            let total = 0;
+            let totalItems = 0;
+            
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center mt-10">Tu carrito está vacío.</p>';
+                checkoutBtn.disabled = true;
+                cartBadge.classList.add('hidden');
+            } else {
+                checkoutBtn.disabled = false;
+                cartBadge.classList.remove('hidden');
+                
+                cart.forEach(item => {
+                    total += item.price * item.quantity;
+                    totalItems += item.quantity;
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex items-center justify-between border-b pb-4';
+                    itemDiv.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded bg-gray-100 overflow-hidden flex-shrink-0 border border-gray-200">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800 text-sm">${item.name}</h4>
+                                <div class="text-farm-green font-bold text-sm">Q${(item.price * item.quantity).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center text-xs">-</button>
+                            <span class="text-sm font-semibold w-4 text-center">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 rounded bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center text-xs">+</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemDiv);
+                });
+            }
+
+            cartTotalElement.innerText = `Q${total.toFixed(2)}`;
+            cartBadge.innerText = totalItems;
+            document.getElementById('checkout-amount-display').innerText = `(Q${total.toFixed(2)})`;
+        }
+
+        // Navegación por Pestañas (Tabs)
+        function switchTab(tabId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            // Mostrar la seleccionada
+            document.getElementById(tabId + '-section').classList.remove('hidden');
+            document.getElementById(tabId + '-section').classList.add('block');
+            
+            // Actualizar estilo del menú de navegación
+            ['tienda', 'nosotros', 'contacto'].forEach(id => {
+                const navBtn = document.getElementById('nav-' + id);
+                if(id === tabId) {
+                    navBtn.classList.add('text-farm-accent');
+                    navBtn.classList.remove('text-white');
+                } else {
+                    navBtn.classList.remove('text-farm-accent');
+                    navBtn.classList.add('text-white');
+                }
+            });
+        }
+
+        // Control de Modales
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const overlay = document.getElementById('overlay');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const successModal = document.getElementById('success-modal');
+
+        function toggleCart() {
+            cartSidebar.classList.toggle('translate-x-full');
+            
+            if (!cartSidebar.classList.contains('translate-x-full')) {
+                overlay.classList.remove('hidden');
+            } else if (checkoutModal.classList.contains('hidden') && successModal.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function openCheckout() {
+            // Cierra el carrito y abre el checkout
+            cartSidebar.classList.add('translate-x-full');
+            checkoutModal.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            checkoutModal.classList.add('hidden');
+            overlay.classList.add('hidden');
+            document.getElementById('payment-form').reset();
+        }
+
+        function closeSuccess() {
+            successModal.classList.add('hidden');
+            overlay.classList.add('hidden');
+            // Limpiar carrito después de la compra
+            cart = [];
+            updateCartUI();
+        }
+
+        function closeAllModals() {
+            cartSidebar.classList.add('translate-x-full');
+            checkoutModal.classList.add('hidden');
+            successModal.classList.add('hidden');
+            document.getElementById('fel-modal').classList.add('hidden');
+            overlay.classList.add('hidden');
+        }
+
+        // Generador de UUID para la simulación de la autorización FEL
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16).toUpperCase();
+            });
+        }
+
+        function processPayment(event) {
+            event.preventDefault(); // Evita recargar la página
+            
+            // Cerrar modal de pago
+            checkoutModal.classList.add('hidden');
+            
+            // Generar y mostrar la Factura Electrónica (FEL)
+            generateAndShowFEL();
+            
+            // Resetear formulario
+            document.getElementById('payment-form').reset();
+        }
+
+        function generateAndShowFEL() {
+            const felModal = document.getElementById('fel-modal');
+            
+            // Generar datos ficticios oficiales
+            const uuid = generateUUID();
+            const serie = Math.random().toString(36).substring(2, 10).toUpperCase();
+            const numero = Math.floor(Math.random() * 1000000000);
+            
+            // Fecha y hora local de Guatemala
+            const date = new Date().toLocaleString('es-GT', { timeZone: 'America/Guatemala' });
+
+            // Llenar metadatos (Encabezado FEL)
+            document.getElementById('fel-meta').innerHTML = `
+                <div class="mb-2"><strong>Autorización:</strong> <br><span class="text-xs break-all">${uuid}</span></div>
+                <div><strong>Serie:</strong> ${serie} &nbsp;&nbsp;&nbsp; <strong>Número:</strong> ${numero}</div>
+                <div><strong>Fecha de emisión:</strong> <br>${date}</div>
+                <div><strong>Certificador:</strong> INFILE, S.A.</div>
+                <div class="mt-3"><strong>Cliente:</strong> C/F</div>
+            `;
+
+            // Llenar listado de productos
+            const tbody = document.getElementById('fel-items');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-2 align-top">${item.quantity}</td>
+                        <td class="py-2 align-top pr-2">${item.name}</td>
+                        <td class="py-2 align-top text-right">Q${itemTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            // Llenar Total
+            document.getElementById('fel-total').innerHTML = `TOTAL: Q${total.toFixed(2)}`;
+
+            // Mostrar el Modal de FEL
+            felModal.classList.remove('hidden');
+            
+            // Vaciar el carrito lógicamente
+            cart = [];
+            updateCartUI();
+        }
+
+        function closeFEL() {
+            document.getElementById('fel-modal').classList.add('hidden');
+            overlay.classList.add('hidden');
+        }
+
+        function printFEL() {
+            window.print();
+        }
+
+        // Iniciar
+        window.onload = () => {
+            renderProducts();
+        };
+    </script>
+</body>
+</html>
